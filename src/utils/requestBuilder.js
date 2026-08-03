@@ -175,12 +175,17 @@ export function buildEndpointUrl(config) {
   // Replace {model} placeholder (Gemini)
   url = url.replace('{model}', config.model || '')
 
-  // Gemini: append API key as query param
-  if (config.requestFormat === 'gemini' && config.apiKey?.trim()) {
-    const sep = url.includes('?') ? '&' : '?'
-    url += `${sep}key=${config.apiKey.trim()}`
+  // Gemini: adjust endpoint and append API key
+  if (config.requestFormat === 'gemini') {
     if (config.stream) {
-      url += '&alt=sse'
+      url = url.replace(':generateContent', ':streamGenerateContent')
+    }
+    if (config.apiKey?.trim()) {
+      const sep = url.includes('?') ? '&' : '?'
+      url += `${sep}key=${config.apiKey.trim()}`
+      if (config.stream) {
+        url += '&alt=sse'
+      }
     }
   }
 

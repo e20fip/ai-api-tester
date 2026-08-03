@@ -83,6 +83,7 @@ export default function Sidebar() {
             className="btn btn-ghost btn-icon sidebar-toggle"
             onClick={() => dispatch({ type: 'SET_SIDEBAR_OPEN', payload: !sidebarOpen })}
             data-tooltip={sidebarOpen ? 'Collapse' : 'Expand'}
+            data-tooltip-pos="bottom"
             id="sidebar-toggle-btn"
           >
             {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}

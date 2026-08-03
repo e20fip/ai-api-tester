@@ -83,6 +83,7 @@ export default function PlaygroundView() {
                 className="btn btn-ghost btn-icon btn-sm"
                 onClick={() => { setPrompt(''); setResponse(''); setUsage(null); setError(null) }}
                 data-tooltip="Clear"
+                data-tooltip-pos="bottom"
                 id="pg-clear-btn"
               >
                 <RotateCcw size={13} />

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { User, Bot, ChevronDown, ChevronRight, Wrench, Copy, Check, AlertCircle } from 'lucide-react'
 import { useApp } from '../../context/AppContext.jsx'
+import CodeBlock from '../Common/CodeBlock.jsx'
 
 function ToolCallCard({ toolCall }) {
   const [expanded, setExpanded] = useState(false)
@@ -50,28 +51,128 @@ function MessageBubble({ message, isStreaming = false }) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
 
-  // Simple markdown-like rendering
   const renderContent = (text) => {
     if (!text) return null
-    return text.split('\n').map((line, i) => {
-      // Code block
-      if (line.startsWith('```')) return <div key={i} className="msg-code-fence" />
-      // Heading
-      if (line.startsWith('## ')) return <h3 key={i} className="msg-heading">{line.slice(3)}</h3>
-      if (line.startsWith('# '))  return <h2 key={i} className="msg-heading-lg">{line.slice(2)}</h2>
-      // Bold + inline code
-      const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/)
-      return (
-        <p key={i} className="msg-line">
-          {parts.map((part, j) => {
-            if (part.startsWith('**') && part.endsWith('**')) return <strong key={j}>{part.slice(2, -2)}</strong>
-            if (part.startsWith('`') && part.endsWith('`'))   return <code key={j} className="msg-inline-code">{part.slice(1, -1)}</code>
-            if (part.startsWith('*') && part.endsWith('*'))   return <em key={j}>{part.slice(1, -1)}</em>
-            return part
-          })}
+
+    const blocks = []
+    const lines = text.split('\n')
+    let currentCodeBlock = null
+    let currentList = null
+
+    const flushList = () => {
+      if (currentList) {
+        const Tag = currentList.type
+        blocks.push(
+          <Tag key={`list-${blocks.length}`} className={currentList.type === 'ul' ? 'msg-ul' : 'msg-ol'}>
+            {currentList.items.map((item, idx) => (
+              <li key={idx} className="msg-li">{renderInline(item)}</li>
+            ))}
+          </Tag>
+        )
+        currentList = null
+      }
+    }
+
+    const renderInline = (inlineText) => {
+      const parts = inlineText.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/)
+      return parts.map((part, j) => {
+        if (part.startsWith('**') && part.endsWith('**')) return <strong key={j}>{part.slice(2, -2)}</strong>
+        if (part.startsWith('`') && part.endsWith('`'))   return <code key={j} className="msg-inline-code">{part.slice(1, -1)}</code>
+        if (part.startsWith('*') && part.endsWith('*'))   return <em key={j}>{part.slice(1, -1)}</em>
+        return part
+      })
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      // Handle Code Block
+      if (line.trim().startsWith('```')) {
+        if (currentCodeBlock !== null) {
+          const codeText = currentCodeBlock.lines.join('\n')
+          blocks.push(
+            <div key={`code-${blocks.length}`} className="msg-code-block-container" style={{ margin: '8px 0' }}>
+              <CodeBlock code={codeText} language={currentCodeBlock.lang || 'text'} />
+            </div>
+          )
+          currentCodeBlock = null
+        } else {
+          flushList()
+          const lang = line.trim().slice(3).trim()
+          currentCodeBlock = { lang, lines: [] }
+        }
+        continue
+      }
+
+      if (currentCodeBlock !== null) {
+        currentCodeBlock.lines.push(line)
+        continue
+      }
+
+      // Handle Headings
+      if (line.startsWith('#')) {
+        flushList()
+        const match = line.match(/^(#{1,6})\s+(.*)$/)
+        if (match) {
+          const level = match[1].length
+          const headingText = match[2]
+          const Tag = `h${Math.min(level + 1, 6)}`
+          blocks.push(<Tag key={`h-${blocks.length}`} className={`msg-heading-${level}`}>{renderInline(headingText)}</Tag>)
+          continue
+        }
+      }
+
+      // Handle Unordered List Items
+      const ulMatch = line.match(/^[\*\-]\s+(.*)$/)
+      if (ulMatch) {
+        if (currentList && currentList.type !== 'ul') {
+          flushList()
+        }
+        if (!currentList) {
+          currentList = { type: 'ul', items: [] }
+        }
+        currentList.items.push(ulMatch[1])
+        continue
+      }
+
+      // Handle Ordered List Items
+      const olMatch = line.match(/^\d+\.\s+(.*)$/)
+      if (olMatch) {
+        if (currentList && currentList.type !== 'ol') {
+          flushList()
+        }
+        if (!currentList) {
+          currentList = { type: 'ol', items: [] }
+        }
+        currentList.items.push(olMatch[1])
+        continue
+      }
+
+      if (line.trim() === '') {
+        flushList()
+        continue
+      }
+
+      flushList()
+      blocks.push(
+        <p key={`p-${blocks.length}`} className="msg-line">
+          {renderInline(line)}
         </p>
       )
-    })
+    }
+
+    flushList()
+
+    if (currentCodeBlock !== null) {
+      const codeText = currentCodeBlock.lines.join('\n')
+      blocks.push(
+        <div key={`code-open-${blocks.length}`} className="msg-code-block-container" style={{ margin: '8px 0' }}>
+          <CodeBlock code={codeText} language={currentCodeBlock.lang || 'text'} />
+        </div>
+      )
+    }
+
+    return blocks
   }
 
   return (
@@ -320,8 +421,17 @@ export default function ChatWindow() {
 
         .msg-line { margin: 2px 0; }
         .msg-line:empty { height: 8px; }
-        .msg-heading { font-size: var(--text-lg); font-weight: 700; margin: var(--space-2) 0 var(--space-1); }
-        .msg-heading-lg { font-size: var(--text-xl); font-weight: 700; margin: var(--space-3) 0 var(--space-2); }
+        .msg-ul, .msg-ol {
+          margin: 8px 0;
+          padding-left: var(--space-5);
+        }
+        .msg-li {
+          margin: 4px 0;
+        }
+        .msg-heading-1 { font-size: var(--text-xl); font-weight: 700; margin: var(--space-3) 0 var(--space-2); }
+        .msg-heading-2 { font-size: var(--text-lg); font-weight: 700; margin: var(--space-2) 0 var(--space-1); }
+        .msg-heading-3 { font-size: var(--text-md); font-weight: 700; margin: var(--space-2) 0 var(--space-1); }
+        .msg-heading-4, .msg-heading-5, .msg-heading-6 { font-size: var(--text-sm); font-weight: 700; margin: var(--space-2) 0 var(--space-1); }
         .msg-inline-code {
           font-family: var(--font-mono);
           font-size: 0.88em;

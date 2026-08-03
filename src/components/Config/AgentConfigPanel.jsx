@@ -3,6 +3,7 @@ import { Settings, Server, MessageSquare, SlidersHorizontal, Wrench, Hash, Plus,
 import { useApp } from '../../context/AppContext.jsx'
 import JsonEditor from '../Common/JsonEditor.jsx'
 import { REQUEST_FORMATS } from '../../utils/presets.js'
+import { buildEndpointUrl } from '../../utils/requestBuilder.js'
 
 const TABS = [
   { id: 'endpoint', label: 'Endpoint', Icon: Server },
@@ -75,6 +76,7 @@ export default function AgentConfigPanel({ compact = false }) {
               className={`config-tab${activeTab === id ? ' active' : ''}`}
               onClick={() => setActiveTab(id)}
               data-tooltip={label}
+              data-tooltip-pos="bottom"
               id={`config-tab-${id}`}
             >
               <Icon size={14} />

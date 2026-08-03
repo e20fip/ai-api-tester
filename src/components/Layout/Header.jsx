@@ -55,7 +55,7 @@ export default function Header() {
 
           {/* Token counter */}
           {tokenTotal != null && !isStreaming && (
-            <div className="token-badge" data-tooltip="Last response token usage">
+            <div className="token-badge" data-tooltip="Last response token usage" data-tooltip-pos="bottom">
               <Activity size={12} />
               <span>{tokenTotal.toLocaleString()} tokens</span>
             </div>
