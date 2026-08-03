@@ -680,3 +680,129 @@ option {
 .relative { position: relative; }
 .absolute { position: absolute; }
 .text-center { text-align: center; }
+
+.mobile-overlay-backdrop {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   21. Responsive Media Queries (Mobile & Tablet)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 280px;
+    --config-width: 320px;
+    --space-4: 12px;
+    --space-5: 16px;
+    --space-6: 20px;
+  }
+
+  /* Overlay draw backdrop */
+  .mobile-overlay-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 99;
+    animation: fadeIn var(--transition-fast) both;
+  }
+
+  /* Header mobile adjustments */
+  .header {
+    padding: 0 var(--space-2);
+    gap: var(--space-2);
+  }
+
+  .header-tab span {
+    display: none; /* Hide labels, show only icons on mobile header */
+  }
+
+  .header-tab {
+    padding: var(--space-2);
+  }
+
+  .preset-badge {
+    max-width: 130px;
+  }
+
+  .preset-model {
+    display: none; /* Hide model name to save space */
+  }
+
+  /* Sidebar Drawer on Mobile */
+  .sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    width: var(--sidebar-width) !important;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal) !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%) !important;
+  }
+
+  /* Config Panel Drawer on Mobile */
+  .config-panel {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    width: var(--config-width) !important;
+    transform: translateX(100%);
+    transition: transform var(--transition-normal) !important;
+    background: rgba(10, 13, 28, 0.95) !important;
+    border-left: var(--glass-border) !important;
+  }
+
+  .config-panel.open {
+    transform: translateX(0) !important;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Playground view responsive layout */
+  .playground-main {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto;
+    padding: var(--space-3);
+    gap: var(--space-3);
+    overflow-y: auto !important;
+  }
+
+  /* Sizing optimizations for smaller screens */
+  .btn {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .input, .textarea, .select {
+    padding: var(--space-2);
+  }
+
+  .inspector-panel {
+    width: 100% !important;
+    max-height: 90vh !important;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .inspector-tabs .tab span {
+    display: none;
+  }
+
+  .inspector-content {
+    padding: var(--space-3) !important;
+  }
+}

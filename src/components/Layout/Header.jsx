@@ -1,4 +1,4 @@
-import { MessageSquare, Beaker, FileCode2, Activity, Info } from 'lucide-react'
+import { MessageSquare, Beaker, FileCode2, Activity, Info, Menu, Settings } from 'lucide-react'
 import { useApp } from '../../context/AppContext.jsx'
 
 const VIEWS = [
@@ -26,6 +26,14 @@ export default function Header() {
   return (
     <>
       <header className="header">
+        <button
+          className="btn btn-ghost btn-icon header-mobile-menu"
+          onClick={() => dispatch({ type: 'SET_SIDEBAR_OPEN', payload: !state.sidebarOpen })}
+          aria-label="Toggle sidebar"
+        >
+          <Menu size={16} />
+        </button>
+
         {/* View Tabs */}
         <nav className="header-tabs" role="tablist" aria-label="View mode">
           {VIEWS.map(({ id, label, Icon }) => (
@@ -67,10 +75,27 @@ export default function Header() {
             <span>{currentPreset?.name ?? '—'}</span>
             <span className="preset-model">{currentPreset?.model}</span>
           </div>
+
+          <button
+            className="btn btn-ghost btn-icon header-mobile-config"
+            onClick={() => dispatch({ type: 'SET_CONFIG_OPEN', payload: !state.configOpen })}
+            aria-label="Toggle configuration"
+          >
+            <Settings size={16} />
+          </button>
         </div>
       </header>
 
       <style>{`
+        .header-mobile-menu, .header-mobile-config {
+          display: none;
+        }
+        @media (max-width: 768px) {
+          .header-mobile-menu, .header-mobile-config {
+            display: inline-flex;
+          }
+        }
+
         .header {
           display: flex;
           align-items: center;

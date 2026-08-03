@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings, Server, MessageSquare, SlidersHorizontal, Wrench, Hash, Plus, Trash2 } from 'lucide-react'
+import { Settings, Server, MessageSquare, SlidersHorizontal, Wrench, Hash, Plus, Trash2, X } from 'lucide-react'
 import { useApp } from '../../context/AppContext.jsx'
 import JsonEditor from '../Common/JsonEditor.jsx'
 import { REQUEST_FORMATS } from '../../utils/presets.js'
@@ -35,7 +35,8 @@ function SliderRow({ label, id, min, max, step, value, onChange, format = (v) =>
 }
 
 export default function AgentConfigPanel({ compact = false }) {
-  const { currentPreset, dispatch } = useApp()
+  const { state, currentPreset, dispatch } = useApp()
+  const { configOpen } = state
   const [activeTab, setActiveTab] = useState('endpoint')
   const [customHeaders, setCustomHeaders] = useState(
     () => Object.entries(currentPreset?.customHeaders ?? {}).map(([k, v]) => ({ k, v, id: Math.random() }))
@@ -62,10 +63,18 @@ export default function AgentConfigPanel({ compact = false }) {
 
   return (
     <>
-      <aside className="config-panel glass-card">
+      <aside className={`config-panel glass-card${configOpen ? ' open' : ''}`}>
         <div className="config-panel-header">
           <Settings size={15} />
           <span className="config-panel-title">Config</span>
+          <div style={{ flex: 1 }} />
+          <button
+            className="btn btn-ghost btn-icon config-mobile-close"
+            onClick={() => dispatch({ type: 'SET_CONFIG_OPEN', payload: false })}
+            aria-label="Close configuration"
+          >
+            <X size={15} />
+          </button>
         </div>
 
         {/* Tabs */}
@@ -307,6 +316,15 @@ export default function AgentConfigPanel({ compact = false }) {
           border-top: none;
           border-bottom: none;
           border-left: none;
+        }
+
+        .config-mobile-close {
+          display: none;
+        }
+        @media (max-width: 768px) {
+          .config-mobile-close {
+            display: inline-flex;
+          }
         }
 
         .config-panel-header {

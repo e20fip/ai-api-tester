@@ -87,7 +87,7 @@ export default function PayloadInspector() {
               id={`inspector-tab-${id}`}
             >
               <Icon size={13} />
-              {label}
+              <span>{label}</span>
             </button>
           ))}
         </div>

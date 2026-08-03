@@ -53,10 +53,20 @@ export default function Sidebar() {
   const { sidebarOpen, customPresets } = state
   const builtinPresets = allPresets.filter(p => !customPresets.find(c => c.id === p.id))
 
+  const handleSelectPreset = (presetId) => {
+    dispatch({ type: 'SET_PRESET', payload: presetId })
+    if (window.innerWidth <= 768) {
+      dispatch({ type: 'SET_SIDEBAR_OPEN', payload: false })
+    }
+  }
+
   const handleAddPreset = () => {
     const preset = createPreset({ name: `Custom Preset ${customPresets.length + 1}` })
     dispatch({ type: 'ADD_CUSTOM_PRESET', payload: preset })
     dispatch({ type: 'SET_PRESET', payload: preset.id })
+    if (window.innerWidth <= 768) {
+      dispatch({ type: 'SET_SIDEBAR_OPEN', payload: false })
+    }
   }
 
   const handleDeletePreset = (id) => {
@@ -99,7 +109,7 @@ export default function Sidebar() {
                 key={preset.id}
                 preset={preset}
                 isActive={currentPreset?.id === preset.id}
-                onClick={() => dispatch({ type: 'SET_PRESET', payload: preset.id })}
+                onClick={() => handleSelectPreset(preset.id)}
                 isCustom={false}
               />
             ))}
@@ -115,7 +125,7 @@ export default function Sidebar() {
                   key={preset.id}
                   preset={preset}
                   isActive={currentPreset?.id === preset.id}
-                  onClick={() => dispatch({ type: 'SET_PRESET', payload: preset.id })}
+                  onClick={() => handleSelectPreset(preset.id)}
                   onDelete={() => handleDeletePreset(preset.id)}
                   isCustom={true}
                 />

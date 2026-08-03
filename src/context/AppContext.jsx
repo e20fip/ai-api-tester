@@ -29,6 +29,7 @@ const INITIAL_STATE = {
   streamingContent: '',
   activeView: 'chat', // 'chat' | 'playground' | 'raw'
   sidebarOpen: true,
+  configOpen: false,
   inspectorOpen: false,
   inspectorData: null,
   lastMetrics: null,
@@ -119,6 +120,9 @@ function reducer(state, action) {
 
     case 'SET_SIDEBAR_OPEN':
       return { ...state, sidebarOpen: action.payload }
+
+    case 'SET_CONFIG_OPEN':
+      return { ...state, configOpen: action.payload }
 
     case 'SET_INSPECTOR':
       return { ...state, inspectorOpen: action.payload.open, inspectorData: action.payload.data ?? state.inspectorData }

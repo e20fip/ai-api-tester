@@ -6,11 +6,19 @@ import PlaygroundView from './views/PlaygroundView.jsx'
 import RawRequestView from './views/RawRequestView.jsx'
 
 function AppContent() {
-  const { state } = useApp()
-  const { activeView } = state
+  const { state, dispatch } = useApp()
+  const { activeView, sidebarOpen, configOpen } = state
+
+  const handleCloseOverlays = () => {
+    dispatch({ type: 'SET_SIDEBAR_OPEN', payload: false })
+    dispatch({ type: 'SET_CONFIG_OPEN', payload: false })
+  }
 
   return (
     <div className="app-layout">
+      {(sidebarOpen || configOpen) && (
+        <div className="mobile-overlay-backdrop" onClick={handleCloseOverlays} />
+      )}
       <Sidebar />
       <div className="app-main">
         <Header />
