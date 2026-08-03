@@ -296,6 +296,11 @@ code, pre, kbd {
   appearance: none;
 }
 
+option {
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+}
+
 .input-mono {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
