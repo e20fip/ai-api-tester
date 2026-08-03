@@ -175,6 +175,17 @@ export function buildEndpointUrl(config) {
   // Replace {model} placeholder (Gemini)
   url = url.replace('{model}', config.model || '')
 
+  // Automatically proxy official URLs in production on Vercel
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    if (url.startsWith('https://api.openai.com/')) {
+      url = url.replace('https://api.openai.com/', '/proxy/openai/')
+    } else if (url.startsWith('https://api.anthropic.com/')) {
+      url = url.replace('https://api.anthropic.com/', '/proxy/anthropic/')
+    } else if (url.startsWith('https://generativelanguage.googleapis.com/')) {
+      url = url.replace('https://generativelanguage.googleapis.com/', '/proxy/gemini/')
+    }
+  }
+
   // Gemini: adjust endpoint and append API key
   if (config.requestFormat === 'gemini') {
     if (config.stream) {
